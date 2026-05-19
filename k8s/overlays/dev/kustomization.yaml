@@ -6,6 +6,6 @@ bases:
 images:
   - name: image-registry.openshift-image-registry.svc:5000/NAMESPACE/shipper-onboarding-api
     newName: image-registry.openshift-image-registry.svc:5000/tekton-argocd-demo/shipper-onboarding-api
-    newTag: 16d0c62f2c35f27fd8ba650a663df62434610fc1
+    newTag: 0415a56a9075857436f68c7c1f549a9162cfbb1a
 commonLabels:
   environment: dev
