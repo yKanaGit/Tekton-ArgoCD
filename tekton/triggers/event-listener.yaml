@@ -13,6 +13,11 @@ spec:
       - name: eventTypes
         value:
         - push
+    - ref:
+        name: cel
+      params:
+      - name: filter
+        value: "!body.head_commit.message.contains('[skip ci]')"
     bindings:
     - ref: github-push-binding
     template:

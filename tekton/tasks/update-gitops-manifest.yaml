@@ -68,7 +68,7 @@ spec:
 
       # Commit changes
       git add $(params.manifest-path)
-      git commit -m "Update image tag to $(params.image-tag)
+      git commit -m "[skip ci] Update image tag to $(params.image-tag)
 
       Auto-committed by Tekton Pipeline
 
