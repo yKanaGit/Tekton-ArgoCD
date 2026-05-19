@@ -1,0 +1,42 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: github-push-template
+spec:
+  params:
+  - name: git-url
+    description: The git repository URL
+  - name: git-revision
+    description: The git revision (branch ref)
+  - name: git-commit-sha
+    description: The git commit SHA
+  - name: git-repo-name
+    description: The repository name
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: build-update-gitops-run-
+    spec:
+      pipelineRef:
+        name: build-update-gitops-pipeline
+      params:
+      - name: git-url
+        value: $(tt.params.git-url)
+      - name: git-revision
+        value: $(tt.params.git-revision)
+      - name: image-name
+        value: image-registry.openshift-image-registry.svc:5000/tekton-argocd-demo/shipper-onboarding-api
+      - name: image-tag
+        value: $(tt.params.git-commit-sha)
+      - name: manifest-path
+        value: k8s/overlays/dev/kustomization.yaml
+      workspaces:
+      - name: shared-workspace
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+            - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi

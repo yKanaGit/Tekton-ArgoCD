@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>荷主オンボーディング管理 - Shipper Onboarding</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c5282 0%, #2d3748 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f7fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background: #edf2f7;
+        }
+
+        .tab.active {
+            color: #2c5282;
+            background: white;
+            border-bottom-color: #2c5282;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #2c5282;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2c5282;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2c5282 0%, #2d3748 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 82, 130, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-color: #2c5282;
+        }
+
+        .card h3 {
+            color: #2c5282;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 5px 5px 5px 0;
+        }
+
+        .badge-received {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .badge-processing {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .badge-completed {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-failed {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        #message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        #message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        #message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .system-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .link-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+            border: 2px solid #e0e0e0;
+        }
+
+        .link-card:hover {
+            background: #2c5282;
+            color: white;
+            border-color: #2c5282;
+            transform: translateY(-3px);
+        }
+
+        .link-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .demo-guide {
+            background: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .demo-guide h3 {
+            color: #f57c00;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .demo-guide ul {
+            margin: 10px 0 10px 20px;
+        }
+
+        .demo-guide li {
+            margin: 8px 0;
+            color: #555;
+        }
+
+        .manual-input-toggle {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 5px;
+        }
+
+        .manual-input-toggle label {
+            display: inline;
+            margin-left: 8px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .impact-section {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .impact-section h4 {
+            color: #c53030;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .impact-section pre {
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .impact-table {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px 16px;
+            margin: 10px 0;
+        }
+
+        .impact-table dt {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .impact-table dd {
+            margin: 0;
+            color: #4a5568;
+        }
+
+        .impact-table .retry-badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .impact-table .failure-reason {
+            color: #c53030;
+            font-weight: 600;
+        }
+
+        @keyframes retryFlash {
+            0% { background-color: #fff3cd; }
+            100% { background-color: white; }
+        }
+
+        .retry-flash {
+            animation: retryFlash 2s ease-out;
+        }
+
+        .badge-retried {
+            background: #e9d5ff;
+            color: #6b21a8;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+
+        .comparison-table th {
+            background: #2c5282;
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .diagram-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .diagram-box {
+            padding: 20px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+
+        .diagram-box h3 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .diagram-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            white-space: pre;
+            overflow-x: auto;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .callout-highlight {
+            background: linear-gradient(135deg, #e6f2ff 0%, #f0f9ff 100%);
+            border-left: 5px solid #2c5282;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .callout-highlight h3 {
+            color: #2c5282;
+            margin-bottom: 10px;
+        }
+
+        .callout-highlight ul {
+            margin: 10px 0 10px 20px;
+        }
+
+        .callout-highlight li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚚 荷主連携標準化プラットフォーム</h1>
+            <p class="subtitle">既存システムを変えずに、荷主連携・監視・再処理を標準化</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab(0)">AS-IS / TO-BE</div>
+            <div class="tab" onclick="switchTab(1)">荷主・拠点管理</div>
+            <div class="tab" onclick="switchTab(2)">連携イベント</div>
+            <div class="tab" onclick="switchTab(3)">システム情報</div>
+        </div>
+
+        <div id="message"></div>
+
+        <!-- Tab 0: AS-IS / TO-BE -->
+        <div class="tab-content active">
+            <h2>🎯 標準化プラットフォームの概要</h2>
+            <div class="callout-highlight">
+                <h3>核心メッセージ</h3>
+                <p style="font-size: 1.1rem; font-weight: 600;">
+                    既存基幹システム（WMS/TMS）は変更不要。<br>
+                    外側に標準化レイヤーを追加して荷主連携を統一します。
+                </p>
+            </div>
+
+            <h2>このプラットフォームの位置づけ</h2>
+            <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 30px;">
+                <ul style="margin: 10px 0 10px 20px;">
+                    <li style="margin: 10px 0;">本システムは既存のWMS・TMS・基幹システムを置き換えるものではありません</li>
+                    <li style="margin: 10px 0;">既存システムの外側に配置し、荷主連携・イベント追跡・障害検知・再処理を標準化する「連携アダプタ層」です</li>
+                    <li style="margin: 10px 0;">各荷主の既存連携方式（API / EDI / ファイル）をそのまま受け入れ、内部で統一的に処理します</li>
+                </ul>
+            </div>
+
+            <h2>現状の課題 (AS-IS)</h2>
+            <p style="margin-bottom: 15px;">各荷主が異なる連携方式を使用しており、個別対応が必要です。障害発生時の可視性がなく、対応が遅延します。</p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>荷主</th>
+                        <th>AS-IS 連携方式</th>
+                        <th>AS-IS の課題</th>
+                        <th>TO-BE（標準化後）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>東京物流 (SHP001)</strong></td>
+                        <td>API直接連携（REST）</td>
+                        <td>APIバージョン変更時に個別対応が必要。エラー発生時の追跡困難。</td>
+                        <td style="color: #2c5282; font-weight: 600;">→ 統一APIゲートウェイ経由</td>
+                    </tr>
+                    <tr>
+                        <td><strong>大阪運輸 (SHP002)</strong></td>
+                        <td>JX手順EDI</td>
+                        <td>EDI手順書の維持・管理コストが高い。障害検知が遅延。</td>
+                        <td style="color: #2c5282; font-weight: 600;">→ 統一EDIアダプタ経由</td>
+                    </tr>
+                    <tr>
+                        <td><strong>名古屋流通 (SHP003)</strong></td>
+                        <td>FTPファイル転送</td>
+                        <td>ファイル形式の不統一。転送失敗の検知が困難。</td>
+                        <td style="color: #2c5282; font-weight: 600;">→ 統一ファイルアダプタ経由</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2 style="margin-top: 40px;">AS-IS: 連携方式だけでなく、確認・監視・再処理も荷主ごとに個別化</h2>
+            <div class="card-grid">
+                <div class="card" style="background: #fff5f5; border-color: #feb2b2;">
+                    <h3 style="color: #c53030;">東京物流（API連携）</h3>
+                    <ul style="margin: 15px 0 0 20px; list-style: disc;">
+                        <li style="margin: 8px 0;">認証設定: 個別</li>
+                        <li style="margin: 8px 0;">疎通確認: 個別手順</li>
+                        <li style="margin: 8px 0;">監視: 個別アラート</li>
+                        <li style="margin: 8px 0;">再処理: APIログ確認後に手動対応</li>
+                        <li style="margin: 8px 0;">仕様: 個別API仕様書</li>
+                    </ul>
+                </div>
+                <div class="card" style="background: #fffaf0; border-color: #fbd38d;">
+                    <h3 style="color: #c05621;">大阪運輸（EDI連携）</h3>
+                    <ul style="margin: 15px 0 0 20px; list-style: disc;">
+                        <li style="margin: 8px 0;">未着確認: 運用担当が手動確認</li>
+                        <li style="margin: 8px 0;">再送依頼: メール/電話</li>
+                        <li style="margin: 8px 0;">取込確認: バッチログ確認</li>
+                        <li style="margin: 8px 0;">再処理: 手順書ベース</li>
+                        <li style="margin: 8px 0;">仕様: EDIファイルレイアウト資料</li>
+                    </ul>
+                </div>
+                <div class="card" style="background: #fef5e7; border-color: #f9e79f;">
+                    <h3 style="color: #b8860b;">名古屋流通（ファイル連携）</h3>
+                    <ul style="margin: 15px 0 0 20px; list-style: disc;">
+                        <li style="margin: 8px 0;">受信方法: SFTP/共有フォルダ</li>
+                        <li style="margin: 8px 0;">文字コード/項目差異: 個別調整</li>
+                        <li style="margin: 8px 0;">監視: ファイル未着監視が個別</li>
+                        <li style="margin: 8px 0;">再投入: 手作業</li>
+                        <li style="margin: 8px 0;">仕様: Excel/メールで管理</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>システム構成図</h2>
+            <div class="diagram-container">
+                <div class="diagram-box">
+                    <h3>AS-IS (現状)</h3>
+                    <div class="diagram-content">┌────────────┐
+│ 東京物流    │ ─ REST API ─┐
+│ (SHP001)   │             │
+└────────────┘             │
+                            ├─→ ┌─────────┐
+┌────────────┐             │    │  WMS    │
+│ 大阪運輸    │ ─ JX手順EDI ┤    │  TMS    │
+│ (SHP002)   │             │    │ (個別接続)│
+└────────────┘             │    └─────────┘
+                            │
+┌────────────┐             │
+│名古屋流通   │ ─ FTP ファイル┘
+│ (SHP003)   │
+└────────────┘
+
+<span style="color: #c53030;">▶ 問題: 個別対応、可視性なし</span></div>
+                </div>
+
+                <div class="diagram-box">
+                    <h3>TO-BE (標準化後)</h3>
+                    <div class="diagram-content">┌────────────┐
+│ 東京物流    │ ┐
+│ (SHP001)   │ │
+└────────────┘ │
+                ├─ 統一API →  ┌──────────────┐
+┌────────────┐ │              │  標準化       │
+│ 大阪運輸    │ │              │ プラットフォーム│ → ┌─────────┐
+│ (SHP002)   │ ├─ 統一API →  │ (本システム)   │    │既存 WMS  │
+└────────────┘ │              │              │    │既存 TMS  │
+                │              │・イベント追跡  │    │<span style="color: #2c5282;">変更不要</span>│
+┌────────────┐ │              │・障害検知     │    └─────────┘
+│名古屋流通   │ │              │・再試行      │
+│ (SHP003)   │ ┘              └──────────────┘
+└────────────┘
+
+<span style="color: #2c5282;">▶ 解決: 統一、可視化、自動化</span></div>
+                </div>
+            </div>
+
+            <h2>標準化プラットフォーム (TO-BE)</h2>
+            <div class="callout-highlight">
+                <h3>提供価値</h3>
+                <ul>
+                    <li><strong>対応チャネル:</strong> API連携 / EDI連携 / ファイル連携（3チャネル対応済み）</li>
+                    <li><strong>統一ゲートウェイ:</strong> 全荷主が統一されたゲートウェイを通じて接続</li>
+                    <li><strong>集中追跡:</strong> 連携イベントの集中追跡・監視（連携追跡番号で全履歴を把握）</li>
+                    <li><strong>障害検知・再試行:</strong> 障害発生時の自動検知と再試行機能</li>
+                    <li><strong>オンボーディング高速化:</strong> 新規荷主のオンボーディング時間を大幅短縮</li>
+                    <li><strong>既存システム保護:</strong> WMS/TMSは一切変更不要</li>
+                    <li><strong>拡張可能性:</strong> 今後、MQ連携（Kafka/RabbitMQ）やWebhook通知にも拡張可能</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tab 1: 荷主・拠点管理 -->
+        <div class="tab-content">
+            <div class="form-section">
+                <h2 id="shipperFormTitle">新規荷主登録</h2>
+                <form id="shipperForm">
+                    <input type="hidden" id="shipperId">
+                    <div class="form-group">
+                        <label for="shipperCode">荷主コード *</label>
+                        <input type="text" id="shipperCode" required placeholder="例: SHP001">
+                    </div>
+                    <div class="form-group">
+                        <label for="shipperName">荷主名 *</label>
+                        <input type="text" id="shipperName" required placeholder="例: 東京物流株式会社">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactName">担当者名</label>
+                        <input type="text" id="contactName" placeholder="例: 山田太郎">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEmail">メールアドレス</label>
+                        <input type="email" id="contactEmail" placeholder="例: yamada@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPhone">電話番号</label>
+                        <input type="text" id="contactPhone" placeholder="例: 03-1234-5678">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="shipperSubmitBtn">登録</button>
+                    <button type="button" class="btn btn-secondary" id="shipperCancelBtn" style="display:none;">キャンセル</button>
+                </form>
+            </div>
+
+            <div class="form-section">
+                <h2 id="siteFormTitle">新規拠点登録</h2>
+                <form id="siteForm">
+                    <input type="hidden" id="siteId">
+                    <div class="form-group">
+                        <label for="siteShipperId">所属荷主 *</label>
+                        <select id="siteShipperId" required>
+                            <option value="">-- 荷主を選択 --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="siteCode">拠点コード *</label>
+                        <input type="text" id="siteCode" required placeholder="例: SITE_TKY01">
+                    </div>
+                    <div class="form-group">
+                        <label for="siteName">拠点名 *</label>
+                        <input type="text" id="siteName" required placeholder="例: 東京本社倉庫">
+                    </div>
+                    <div class="form-group">
+                        <label for="siteAddress">住所</label>
+                        <textarea id="siteAddress" placeholder="例: 東京都江東区豊洲1-1-1"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="siteSubmitBtn">登録</button>
+                    <button type="button" class="btn btn-secondary" id="siteCancelBtn" style="display:none;">キャンセル</button>
+                </form>
+            </div>
+
+            <h2>荷主一覧</h2>
+            <div id="shipperList" class="card-grid"></div>
+
+            <h2 style="margin-top: 30px;">拠点一覧</h2>
+            <div id="siteList" class="card-grid"></div>
+        </div>
+
+        <!-- Tab 2: 連携イベント -->
+        <div class="tab-content">
+            <div class="demo-guide">
+                <h3>⚠️ 連携エラー再現</h3>
+                <p>未登録の荷主コードや不正な出荷指示を送信し、連携エラー発生時にどの荷主・拠点・出荷指示が影響を受けているかを確認するデモです。</p>
+                <ul>
+                    <li>登録されていない荷主コード（例: UNKNOWN_SHP）で出荷指示を送信すると、連携エラーが発生し、影響を受ける荷主・拠点・出荷指示が即座に表示されます</li>
+                    <li>未登録の拠点コードで出荷指示を送信した場合も、連携エラーとして検知され、どの拠点が見つからなかったかが表示されます</li>
+                    <li>連携エラーが発生したイベントの「再試行」ボタンで、エラー → 受付済 への状態回復を確認できます</li>
+                </ul>
+                <div class="manual-input-toggle">
+                    <input type="checkbox" id="manualInputMode" onchange="toggleManualInput()">
+                    <label for="manualInputMode">連携エラー再現モードを有効にする</label>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>出荷指示連携</h2>
+                <form id="integrationForm">
+                    <div class="form-group">
+                        <label for="intShipperCode">荷主コード *</label>
+                        <select id="intShipperCode" required>
+                            <option value="">-- 荷主を選択 --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="originSiteCode">出荷元拠点コード *</label>
+                        <select id="originSiteCode" required>
+                            <option value="">-- 出荷元拠点を選択 --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="destinationSiteCode">出荷先拠点コード *</label>
+                        <select id="destinationSiteCode" required>
+                            <option value="">-- 出荷先拠点を選択 --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemDescription">商品説明</label>
+                        <textarea id="itemDescription" placeholder="例: ノートPC 10台"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">数量</label>
+                        <input type="number" id="quantity" placeholder="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="channel">連携方式 *</label>
+                        <select id="channel" required>
+                            <option value="api">API連携</option>
+                            <option value="edi">EDI連携</option>
+                            <option value="file">ファイル連携</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">送信</button>
+                </form>
+            </div>
+
+            <h2>連携イベント一覧</h2>
+            <div id="eventList" class="card-grid"></div>
+        </div>
+
+        <!-- Tab 3: システム情報 -->
+        <div class="tab-content">
+            <h2>システムエンドポイント</h2>
+            <div class="system-links">
+                <a href="/q/swagger-ui" target="_blank" class="link-card">
+                    <h3>📘 API仕様</h3>
+                    <p>標準化APIのインターフェース仕様</p>
+                </a>
+                <a href="/q/health" target="_blank" class="link-card">
+                    <h3>💚 Health Check</h3>
+                    <p>システムヘルスステータス</p>
+                </a>
+                <a href="/q/metrics" target="_blank" class="link-card">
+                    <h3>📊 運用メトリクス</h3>
+                    <p>プラットフォームの稼働状況</p>
+                </a>
+                <a href="/q/openapi" target="_blank" class="link-card">
+                    <h3>📄 OpenAPI</h3>
+                    <p>OpenAPI定義(JSON)</p>
+                </a>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <h2>システム情報</h2>
+                <div class="card">
+                    <h3>アプリケーション</h3>
+                    <p><strong>名前:</strong> Shipper Onboarding API</p>
+                    <p><strong>バージョン:</strong> 1.0.0-SNAPSHOT</p>
+                    <p><strong>フレームワーク:</strong> Quarkus 3.8.3</p>
+                    <p><strong>用途:</strong> 荷主連携標準化プラットフォーム</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editingShipperId = null;
+        let cachedShippers = [];
+        let cachedSites = [];
+
+        function switchTab(index) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+
+            contents.forEach((content, i) => {
+                content.classList.toggle('active', i === index);
+            });
+
+            if (index === 2) {
+                loadEvents();
+                populateIntegrationShipperDropdown();
+                populateIntegrationSiteDropdowns();
+            }
+        }
+
+        async function loadShippers() {
+            try {
+                const response = await fetch('/api/shippers');
+                const shippers = await response.json();
+                displayShippers(shippers);
+            } catch (error) {
+                showMessage('荷主の読み込みに失敗しました: ' + error.message, 'error');
+            }
+        }
+
+        function displayShippers(shippers) {
+            const list = document.getElementById('shipperList');
+            if (shippers.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:#999;">荷主がまだ登録されていません</p>';
+                return;
+            }
+
+            list.innerHTML = shippers.map(shipper => `
+                <div class="card">
+                    <h3>${escapeHtml(shipper.name)}</h3>
+                    <p><strong>コード:</strong> ${escapeHtml(shipper.shipperCode)}</p>
+                    <p><strong>担当者:</strong> ${escapeHtml(shipper.contactName || '-')}</p>
+                    <p><strong>Email:</strong> ${escapeHtml(shipper.contactEmail || '-')}</p>
+                    <p><strong>電話:</strong> ${escapeHtml(shipper.contactPhone || '-')}</p>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-success" onclick="editShipper(${shipper.id})">編集</button>
+                        <button class="btn btn-danger" onclick="deleteShipper(${shipper.id})">削除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('shipperForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const shipper = {
+                shipperCode: document.getElementById('shipperCode').value,
+                name: document.getElementById('shipperName').value,
+                contactName: document.getElementById('contactName').value,
+                contactEmail: document.getElementById('contactEmail').value,
+                contactPhone: document.getElementById('contactPhone').value
+            };
+
+            try {
+                let response;
+                if (editingShipperId) {
+                    response = await fetch(`/api/shippers/${editingShipperId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(shipper)
+                    });
+                } else {
+                    response = await fetch('/api/shippers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(shipper)
+                    });
+                }
+
+                if (response.ok) {
+                    showMessage(editingShipperId ? '荷主を更新しました' : '荷主を登録しました', 'success');
+                    resetShipperForm();
+                    loadShippers();
+                    populateShipperDropdown();
+                    populateIntegrationShipperDropdown();
+                } else {
+                    showMessage('エラーが発生しました', 'error');
+                }
+            } catch (error) {
+                showMessage('通信エラー: ' + error.message, 'error');
+            }
+        });
+
+        async function editShipper(id) {
+            try {
+                const response = await fetch(`/api/shippers/${id}`);
+                const shipper = await response.json();
+
+                document.getElementById('shipperId').value = shipper.id;
+                document.getElementById('shipperCode').value = shipper.shipperCode;
+                document.getElementById('shipperName').value = shipper.name;
+                document.getElementById('contactName').value = shipper.contactName || '';
+                document.getElementById('contactEmail').value = shipper.contactEmail || '';
+                document.getElementById('contactPhone').value = shipper.contactPhone || '';
+
+                editingShipperId = id;
+                document.getElementById('shipperFormTitle').textContent = '荷主編集';
+                document.getElementById('shipperSubmitBtn').textContent = '更新';
+                document.getElementById('shipperCancelBtn').style.display = 'inline-block';
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                showMessage('荷主の読み込みに失敗しました: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteShipper(id) {
+            if (!confirm('この荷主を削除してもよろしいですか？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/shippers/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showMessage('荷主を削除しました', 'success');
+                    loadShippers();
+                    loadSites();
+                    populateShipperDropdown();
+                    populateIntegrationShipperDropdown();
+                    populateIntegrationSiteDropdowns();
+                } else {
+                    showMessage('削除に失敗しました', 'error');
+                }
+            } catch (error) {
+                showMessage('通信エラー: ' + error.message, 'error');
+            }
+        }
+
+        function resetShipperForm() {
+            document.getElementById('shipperForm').reset();
+            editingShipperId = null;
+            document.getElementById('shipperFormTitle').textContent = '新規荷主登録';
+            document.getElementById('shipperSubmitBtn').textContent = '登録';
+            document.getElementById('shipperCancelBtn').style.display = 'none';
+        }
+
+        document.getElementById('shipperCancelBtn').addEventListener('click', resetShipperForm);
+
+        // ========== 拠点管理 ==========
+        let editingSiteId = null;
+
+        async function loadSites() {
+            try {
+                const response = await fetch('/api/sites');
+                const sites = await response.json();
+                displaySites(sites);
+            } catch (error) {
+                showMessage('拠点の読み込みに失敗しました: ' + error.message, 'error');
+            }
+        }
+
+        async function populateShipperDropdown() {
+            try {
+                const response = await fetch('/api/shippers');
+                const shippers = await response.json();
+                const select = document.getElementById('siteShipperId');
+
+                // 既存のオプションをクリア（最初の「選択」オプション以外）
+                select.innerHTML = '<option value="">-- 荷主を選択 --</option>';
+
+                shippers.forEach(shipper => {
+                    const option = document.createElement('option');
+                    option.value = shipper.id;
+                    option.textContent = `${shipper.shipperCode} - ${shipper.name}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                showMessage('荷主一覧の読み込みに失敗しました: ' + error.message, 'error');
+            }
+        }
+
+        function displaySites(sites) {
+            const list = document.getElementById('siteList');
+            if (sites.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:#999;">拠点がまだ登録されていません</p>';
+                return;
+            }
+
+            list.innerHTML = sites.map(site => `
+                <div class="card">
+                    <h3>${escapeHtml(site.name)}</h3>
+                    <p><strong>拠点コード:</strong> ${escapeHtml(site.siteCode)}</p>
+                    <p><strong>荷主:</strong> ${escapeHtml(site.shipper ? site.shipper.name : '-')}</p>
+                    <p><strong>住所:</strong> ${escapeHtml(site.address || '-')}</p>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-success" onclick="editSite(${site.id})">編集</button>
+                        <button class="btn btn-danger" onclick="deleteSite(${site.id})">削除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('siteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const siteRequest = {
+                shipperId: parseInt(document.getElementById('siteShipperId').value),
+                siteCode: document.getElementById('siteCode').value,
+                name: document.getElementById('siteName').value,
+                address: document.getElementById('siteAddress').value
+            };
+
+            try {
+                let response;
+                if (editingSiteId) {
+                    response = await fetch(`/api/sites/${editingSiteId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(siteRequest)
+                    });
+                } else {
+                    response = await fetch('/api/sites', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(siteRequest)
+                    });
+                }
+
+                if (response.ok) {
+                    showMessage(editingSiteId ? '拠点を更新しました' : '拠点を登録しました', 'success');
+                    resetSiteForm();
+                    loadSites();
+                    populateIntegrationSiteDropdowns();
+                } else {
+                    const error = await response.json();
+                    showMessage('エラー: ' + (error.error || 'サーバーエラー'), 'error');
+                }
+            } catch (error) {
+                showMessage('通信エラー: ' + error.message, 'error');
+            }
+        });
+
+        async function editSite(id) {
+            try {
+                const response = await fetch(`/api/sites/${id}`);
+                const site = await response.json();
+
+                document.getElementById('siteId').value = site.id;
+                document.getElementById('siteShipperId').value = site.shipper.id;
+                document.getElementById('siteCode').value = site.siteCode;
+                document.getElementById('siteName').value = site.name;
+                document.getElementById('siteAddress').value = site.address || '';
+
+                editingSiteId = id;
+                document.getElementById('siteFormTitle').textContent = '拠点編集';
+                document.getElementById('siteSubmitBtn').textContent = '更新';
+                document.getElementById('siteCancelBtn').style.display = 'inline-block';
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                showMessage('拠点の読み込みに失敗しました: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteSite(id) {
+            if (!confirm('この拠点を削除してもよろしいですか？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/sites/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showMessage('拠点を削除しました', 'success');
+                    loadSites();
+                    populateIntegrationSiteDropdowns();
+                } else {
+                    showMessage('削除に失敗しました', 'error');
+                }
+            } catch (error) {
+                showMessage('通信エラー: ' + error.message, 'error');
+            }
+        }
+
+        function resetSiteForm() {
+            document.getElementById('siteForm').reset();
+            editingSiteId = null;
+            document.getElementById('siteFormTitle').textContent = '新規拠点登録';
+            document.getElementById('siteSubmitBtn').textContent = '登録';
+            document.getElementById('siteCancelBtn').style.display = 'none';
+        }
+
+        document.getElementById('siteCancelBtn').addEventListener('click', resetSiteForm);
+
+        // ========== 連携イベント用ドロップダウン ==========
+        function toggleManualInput() {
+            const isManual = document.getElementById('manualInputMode').checked;
+            const shipperSelect = document.getElementById('intShipperCode');
+            const originSelect = document.getElementById('originSiteCode');
+            const destSelect = document.getElementById('destinationSiteCode');
+
+            if (isManual) {
+                // Replace selects with text inputs
+                replaceWithInput(shipperSelect, 'intShipperCode', '例: INVALID_SHP');
+                replaceWithInput(originSelect, 'originSiteCode', '例: INVALID_ORIGIN');
+                replaceWithInput(destSelect, 'destinationSiteCode', '例: INVALID_DEST');
+            } else {
+                // Restore selects
+                restoreSelect(document.getElementById('intShipperCode'), 'intShipperCode', '-- 荷主を選択 --');
+                restoreSelect(document.getElementById('originSiteCode'), 'originSiteCode', '-- 出荷元拠点を選択 --');
+                restoreSelect(document.getElementById('destinationSiteCode'), 'destinationSiteCode', '-- 出荷先拠点を選択 --');
+
+                // Repopulate dropdowns
+                populateIntegrationShipperDropdown();
+                populateIntegrationSiteDropdowns();
+            }
+        }
+
+        function replaceWithInput(element, id, placeholder) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = id;
+            input.required = element.required;
+            input.placeholder = placeholder;
+            input.value = element.value;
+            element.parentNode.replaceChild(input, element);
+        }
+
+        function restoreSelect(element, id, defaultOption) {
+            const select = document.createElement('select');
+            select.id = id;
+            select.required = element.required;
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = defaultOption;
+            select.appendChild(option);
+            element.parentNode.replaceChild(select, element);
+        }
+
+        async function populateIntegrationShipperDropdown() {
+            try {
+                const response = await fetch('/api/shippers');
+                const shippers = await response.json();
+                cachedShippers = shippers;  // Cache for business impact display
+                const select = document.getElementById('intShipperCode');
+
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">-- 荷主を選択 --</option>';
+
+                shippers.forEach(shipper => {
+                    const option = document.createElement('option');
+                    option.value = shipper.shipperCode;
+                    option.textContent = `${shipper.shipperCode} - ${shipper.name}`;
+                    select.appendChild(option);
+                });
+
+                if (currentValue) {
+                    select.value = currentValue;
+                }
+            } catch (error) {
+                console.error('荷主一覧の読み込みに失敗しました:', error);
+            }
+        }
+
+        async function populateIntegrationSiteDropdowns() {
+            try {
+                const response = await fetch('/api/sites');
+                const sites = await response.json();
+                cachedSites = sites;  // Cache for business impact display
+
+                const originSelect = document.getElementById('originSiteCode');
+                const destSelect = document.getElementById('destinationSiteCode');
+
+                const currentOrigin = originSelect.value;
+                const currentDest = destSelect.value;
+
+                originSelect.innerHTML = '<option value="">-- 出荷元拠点を選択 --</option>';
+                destSelect.innerHTML = '<option value="">-- 出荷先拠点を選択 --</option>';
+
+                sites.forEach(site => {
+                    const optionText = `${site.siteCode} - ${site.name} (${site.shipper.name})`;
+
+                    const originOption = document.createElement('option');
+                    originOption.value = site.siteCode;
+                    originOption.textContent = optionText;
+                    originSelect.appendChild(originOption);
+
+                    const destOption = document.createElement('option');
+                    destOption.value = site.siteCode;
+                    destOption.textContent = optionText;
+                    destSelect.appendChild(destOption);
+                });
+
+                if (currentOrigin) {
+                    originSelect.value = currentOrigin;
+                }
+                if (currentDest) {
+                    destSelect.value = currentDest;
+                }
+            } catch (error) {
+                console.error('拠点一覧の読み込みに失敗しました:', error);
+            }
+        }
+
+        document.getElementById('integrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const channel = document.getElementById('channel').value;
+            const request = {
+                shipperCode: document.getElementById('intShipperCode').value,
+                originSiteCode: document.getElementById('originSiteCode').value,
+                destinationSiteCode: document.getElementById('destinationSiteCode').value,
+                itemDescription: document.getElementById('itemDescription').value,
+                quantity: parseInt(document.getElementById('quantity').value) || null
+            };
+
+            try {
+                const response = await fetch(`/integration/${channel}/shipment-orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(request)
+                });
+
+                const result = await response.json();
+                if (response.ok || response.status === 202) {
+                    showMessage(`出荷指示を送信しました (連携追跡番号: ${result.correlationId})`, 'success');
+                    document.getElementById('integrationForm').reset();
+                    loadEvents();
+                } else {
+                    showMessage('送信エラー: ' + (result.error || result.message), 'error');
+                }
+            } catch (error) {
+                showMessage('通信エラー: ' + error.message, 'error');
+            }
+        });
+
+        async function loadEvents() {
+            try {
+                const response = await fetch('/integration/events');
+                const events = await response.json();
+                displayEvents(events);
+            } catch (error) {
+                showMessage('イベントの読み込みに失敗しました: ' + error.message, 'error');
+            }
+        }
+
+        function displayEvents(events) {
+            const list = document.getElementById('eventList');
+            if (events.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:#999;">連携イベントがありません</p>';
+                return;
+            }
+
+            list.innerHTML = events.map(event => {
+                const isRetried = event.message && event.message.startsWith('Retry requested');
+                const statusBadgeClass = isRetried ? 'badge-retried' : `badge-${event.status.toLowerCase()}`;
+                const statusLabel = isRetried ? `${event.status} (再試行済)` : event.status;
+
+                let impactSection = '';
+                if (event.status === 'FAILED' && event.payload) {
+                    try {
+                        const payload = JSON.parse(event.payload);
+
+                        // Look up shipper name
+                        const shipper = cachedShippers.find(s => s.shipperCode === event.shipperCode);
+                        const shipperName = shipper ? shipper.name : '（不明）';
+
+                        // Look up site name
+                        const site = cachedSites.find(s => s.siteCode === (payload.originSiteCode || event.siteCode));
+                        const siteName = site ? site.name : '（不明）';
+                        const siteCode = payload.originSiteCode || event.siteCode || '-';
+
+                        // Map channel to Japanese
+                        const channelLabel = {API: 'API連携', EDI: 'EDI連携', FILE: 'ファイル連携'}[event.channel] || event.channel;
+
+                        // Determine recommended action based on error message
+                        let recommendedAction = '荷主・拠点マスタを確認し、正しいコードで再試行してください';
+                        if (event.message && event.message.includes('荷主が見つかりません')) {
+                            recommendedAction = '荷主マスタに正しい荷主コードが登録されていることを確認し、再試行してください';
+                        } else if (event.message && event.message.includes('拠点が見つかりません')) {
+                            recommendedAction = '拠点マスタに正しい拠点コードが登録されていることを確認し、再試行してください';
+                        }
+
+                        impactSection = `
+                            <div class="impact-section">
+                                <h4>⚠️ 業務影響サマリー</h4>
+                                <dl class="impact-table">
+                                    <dt>連携追跡番号:</dt>
+                                    <dd>${escapeHtml(event.correlationId)}</dd>
+
+                                    <dt>影響荷主:</dt>
+                                    <dd>${escapeHtml(event.shipperCode)} - ${escapeHtml(shipperName)}</dd>
+
+                                    <dt>影響拠点:</dt>
+                                    <dd>${escapeHtml(siteCode)} - ${escapeHtml(siteName)}</dd>
+
+                                    <dt>対象出荷指示:</dt>
+                                    <dd>未生成（連携エラーにより出荷指示は作成されていません）</dd>
+
+                                    <dt>連携方式:</dt>
+                                    <dd>${channelLabel}</dd>
+
+                                    <dt>処理ステータス:</dt>
+                                    <dd style="color: #c53030; font-weight: 600;">エラー</dd>
+
+                                    <dt>失敗理由:</dt>
+                                    <dd class="failure-reason">${escapeHtml(event.message || '不明なエラー')}</dd>
+
+                                    <dt>再処理可否:</dt>
+                                    <dd><span class="retry-badge">可能</span></dd>
+
+                                    <dt>推奨される次の対応:</dt>
+                                    <dd>${escapeHtml(recommendedAction)}</dd>
+                                </dl>
+                                <details style="margin-top: 10px;">
+                                    <summary style="cursor: pointer; color: #2c5282; font-weight: 600;">技術詳細を表示</summary>
+                                    <pre>${escapeHtml(event.payload)}</pre>
+                                </details>
+                            </div>
+                        `;
+                    } catch (e) {
+                        // JSON parse failed, show simplified impact with raw payload
+                        const shipper = cachedShippers.find(s => s.shipperCode === event.shipperCode);
+                        const shipperName = shipper ? shipper.name : '（不明）';
+
+                        impactSection = `
+                            <div class="impact-section">
+                                <h4>⚠️ 業務影響サマリー</h4>
+                                <dl class="impact-table">
+                                    <dt>連携追跡番号:</dt>
+                                    <dd>${escapeHtml(event.correlationId)}</dd>
+
+                                    <dt>影響荷主:</dt>
+                                    <dd>${escapeHtml(event.shipperCode)} - ${escapeHtml(shipperName)}</dd>
+
+                                    <dt>処理ステータス:</dt>
+                                    <dd style="color: #c53030; font-weight: 600;">エラー</dd>
+
+                                    <dt>失敗理由:</dt>
+                                    <dd class="failure-reason">${escapeHtml(event.message || '不明なエラー')}</dd>
+                                </dl>
+                                <details style="margin-top: 10px;">
+                                    <summary style="cursor: pointer; color: #2c5282; font-weight: 600;">技術詳細を表示</summary>
+                                    <pre>${escapeHtml(event.payload)}</pre>
+                                </details>
+                            </div>
+                        `;
+                    }
+                }
+
+                // Map channel to Japanese
+                const channelLabel = {API: 'API連携', EDI: 'EDI連携', FILE: 'ファイル連携'}[event.channel] || event.channel;
+
+                // Map status to Japanese
+                const statusMap = {RECEIVED: '受付済', PROCESSING: '処理中', COMPLETED: '完了', FAILED: 'エラー'};
+                const statusJa = isRetried ? `${statusMap[event.status] || event.status} (再試行済)` : (statusMap[event.status] || event.status);
+
+                return `
+                <div class="card" data-correlation-id="${event.correlationId}">
+                    <h3>連携追跡番号: ${event.correlationId.substring(0, 12)}...</h3>
+                    <p><strong>荷主:</strong> ${escapeHtml(event.shipperCode)}</p>
+                    <p><strong>拠点:</strong> ${escapeHtml(event.siteCode || '-')}</p>
+                    <p><strong>チャネル:</strong> ${channelLabel}</p>
+                    <p><strong>受信日時:</strong> ${new Date(event.receivedAt).toLocaleString('ja-JP')}</p>
+                    <p><span class="badge ${statusBadgeClass}">${statusJa}</span></p>
+                    <p style="font-size: 0.9rem; color: #666;">${escapeHtml(event.message || '')}</p>
+                    ${impactSection}
+                    ${event.status === 'FAILED' ? `
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-warning" onclick="retryEvent('${event.correlationId}')">再試行</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            }).join('');
+        }
+
+        async function retryEvent(correlationId) {
+            try {
+                const response = await fetch(`/integration/retry/${correlationId}`, { method: 'POST' });
+                const result = await response.json();
+                if (response.ok) {
+                    showMessage(`イベントを再試行しました (FAILED → RECEIVED)`, 'success');
+                    await loadEvents();
+
+                    // Highlight the retried event card
+                    setTimeout(() => {
+                        const card = document.querySelector(`[data-correlation-id="${correlationId}"]`);
+                        if (card) {
+                            card.classList.add('retry-flash');
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 100);
+                } else {
+                    showMessage('再試行エラー: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('通信エラー: ' + error.message, 'error');
+            }
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = type;
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 初期ロード
+        loadShippers();
+        loadSites();
+        populateShipperDropdown();
+        populateIntegrationShipperDropdown();
+        populateIntegrationSiteDropdowns();
+    </script>
+</body>
+</html>

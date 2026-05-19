@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: buildah-push
+spec:
+  description: Build and push container image using Buildah
+  params:
+  - name: image
+    description: Reference of the image to build (including tag)
+    type: string
+  - name: dockerfile
+    description: Path to the Dockerfile
+    type: string
+    default: app/src/main/docker/Dockerfile.jvm
+  - name: context
+    description: Path to the build context
+    type: string
+    default: app
+  workspaces:
+  - name: source
+    description: Workspace containing the source code
+  steps:
+  - name: build-and-push
+    image: quay.io/buildah/stable:latest
+    workingDir: $(workspaces.source.path)
+    securityContext:
+      privileged: true
+    script: |
+      #!/bin/bash
+      set -e
+      echo "Building image $(params.image)"
+      buildah --storage-driver=vfs bud \
+        --layers \
+        -f $(params.dockerfile) \
+        -t $(params.image) \
+        $(params.context)
+
+      echo "Pushing image to registry"
+      buildah --storage-driver=vfs push \
+        --tls-verify=false \
+        $(params.image)
+
+      echo "Image pushed successfully: $(params.image)"

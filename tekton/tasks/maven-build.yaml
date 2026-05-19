@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: maven-build
+spec:
+  description: Build Maven project
+  params:
+  - name: goals
+    description: Maven goals to execute
+    type: string
+    default: "clean package -Dmaven.test.skip=true"
+  workspaces:
+  - name: source
+    description: Workspace containing the source code
+  steps:
+  - name: mvn-build
+    image: maven:3.8-openjdk-17
+    workingDir: $(workspaces.source.path)/app
+    script: |
+      #!/bin/bash
+      set -e
+      echo "Running Maven build with goals: $(params.goals)"
+      mvn $(params.goals)
+      echo "Build completed successfully"
+      ls -la target/

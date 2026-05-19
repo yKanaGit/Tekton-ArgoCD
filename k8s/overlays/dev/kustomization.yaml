@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: tekton-argocd-demo
+
+bases:
+  - ../../base
+
+images:
+  - name: image-registry.openshift-image-registry.svc:5000/NAMESPACE/shipper-onboarding-api
+    newName: image-registry.openshift-image-registry.svc:5000/tekton-argocd-demo/shipper-onboarding-api
+    newTag: latest
+
+commonLabels:
+  environment: dev

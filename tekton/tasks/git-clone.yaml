@@ -1,0 +1,38 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone
+spec:
+  description: Clone a git repository
+  params:
+  - name: url
+    description: Git repository URL
+    type: string
+  - name: revision
+    description: Git revision to checkout (branch, tag, sha)
+    type: string
+    default: main
+  workspaces:
+  - name: output
+    description: The git repo will be cloned onto this workspace
+  steps:
+  - name: clone
+    image: alpine/git:latest
+    script: |
+      #!/bin/sh
+      set -e
+
+      # Extract branch name from refs/heads/xxx or use as-is
+      REVISION="$(params.revision)"
+      BRANCH="${REVISION#refs/heads/}"
+
+      echo "Cloning $(params.url) at revision ${BRANCH}"
+      cd $(workspaces.output.path)
+
+      # Clean up existing files if any
+      rm -rf .git
+      rm -rf *
+      rm -rf .[!.]*
+
+      git clone --depth 1 --branch "${BRANCH}" $(params.url) .
+      echo "Clone completed successfully"

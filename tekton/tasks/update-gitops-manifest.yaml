@@ -1,0 +1,70 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: update-gitops-manifest
+spec:
+  description: Update Kustomize image tag and push to Git
+  params:
+  - name: git-url
+    description: Git repository URL
+    type: string
+  - name: git-branch
+    description: Git branch name
+    type: string
+    default: main
+  - name: image-tag
+    description: New image tag (commit SHA)
+    type: string
+  - name: manifest-path
+    description: Path to kustomization.yaml
+    type: string
+    default: k8s/overlays/dev/kustomization.yaml
+  - name: git-user-name
+    description: Git user name for commit
+    type: string
+    default: "Tekton Pipeline"
+  - name: git-user-email
+    description: Git user email for commit
+    type: string
+    default: "tekton@example.com"
+  workspaces:
+  - name: source
+    description: Workspace containing git repository
+  steps:
+  - name: update-manifest
+    image: alpine/git:latest
+    workingDir: $(workspaces.source.path)
+    script: |
+      #!/bin/sh
+      set -e
+
+      echo "Current directory: $(pwd)"
+      echo "Updating image tag to: $(params.image-tag)"
+
+      # Install yq for YAML manipulation
+      wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+      chmod +x /usr/local/bin/yq
+
+      # Update newTag in kustomization.yaml
+      yq eval -i '.images[0].newTag = "$(params.image-tag)"' $(params.manifest-path)
+
+      echo "Updated $(params.manifest-path):"
+      cat $(params.manifest-path)
+
+      # Configure git
+      git config user.name "$(params.git-user-name)"
+      git config user.email "$(params.git-user-email)"
+
+      # Commit changes
+      git add $(params.manifest-path)
+      git commit -m "Update image tag to $(params.image-tag)
+
+      Auto-committed by Tekton Pipeline
+
+      Co-Authored-By: Tekton Pipeline <tekton@example.com>"
+
+      # Push to remote
+      echo "Pushing to $(params.git-url) branch $(params.git-branch)"
+      git push origin $(params.git-branch)
+
+      echo "Successfully updated GitOps manifest"

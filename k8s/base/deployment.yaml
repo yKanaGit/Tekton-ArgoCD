@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipper-onboarding-api
+  labels:
+    app: shipper-onboarding-api
+    app.kubernetes.io/name: shipper-onboarding-api
+    app.kubernetes.io/part-of: logistics-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shipper-onboarding-api
+  template:
+    metadata:
+      labels:
+        app: shipper-onboarding-api
+    spec:
+      containers:
+      - name: shipper-onboarding-api
+        image: image-registry.openshift-image-registry.svc:5000/NAMESPACE/shipper-onboarding-api:latest
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: http
+        env:
+        - name: JAVA_OPTIONS
+          value: "-Dquarkus.http.host=0.0.0.0"
+        # PostgreSQL Connection
+        - name: DB_HOST
+          value: "postgresql"  # PostgreSQL service name
+        - name: DB_NAME
+          value: "logisticsdb"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-secret
+              key: username
+              optional: true
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-secret
+              key: password
+              optional: true
+        resources:
+          limits:
+            memory: 768Mi
+            cpu: 1000m
+          requests:
+            memory: 512Mi
+            cpu: 250m
+        livenessProbe:
+          httpGet:
+            path: /q/health/live
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /q/health/ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 3

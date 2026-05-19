@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shipper-onboarding-api
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/yKanaGit/Tekton-ArgoCD.git
+    targetRevision: main
+    path: k8s/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tekton-argocd-demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
