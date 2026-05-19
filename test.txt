@@ -1,1 +1,2 @@
 # GitOps Test
+# Test GitOps with credentials
