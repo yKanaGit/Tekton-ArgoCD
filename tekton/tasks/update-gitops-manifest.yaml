@@ -34,6 +34,17 @@ spec:
   - name: update-manifest
     image: alpine/git:latest
     workingDir: $(workspaces.source.path)
+    env:
+    - name: GIT_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: git-credentials
+          key: username
+    - name: GIT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: git-credentials
+          key: password
     script: |
       #!/bin/sh
       set -e
@@ -63,8 +74,13 @@ spec:
 
       Co-Authored-By: Tekton Pipeline <tekton@example.com>"
 
-      # Push to remote
+      # Push to remote with credentials
       echo "Pushing to $(params.git-url) branch $(params.git-branch)"
-      git push origin $(params.git-branch)
+
+      # Extract repository path from URL (remove https://)
+      REPO_PATH=$(echo "$(params.git-url)" | sed 's|https://||')
+
+      # Push using authenticated URL
+      git push https://${GIT_USERNAME}:${GIT_PASSWORD}@${REPO_PATH} $(params.git-branch)
 
       echo "Successfully updated GitOps manifest"
